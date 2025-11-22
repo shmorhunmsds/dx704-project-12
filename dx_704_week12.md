@@ -123,4 +123,29 @@ As previously mentioned, some of the earliest uses of latent codes for classific
 
 ![alt text](<images/Week 12 geometric-prior.jpg>)
 
-### Building Classifiers from Generative Models 
+### Building Classifiers from Generative Models
+
+## 2.2 Lesson: Indexing Documents with Language Model Embeddings
+Indexing documents with document vectors was previously discussed in Week 10. Lesson 2.1 just discussed using language model embeddings as feature vectors for feature-based classification models. Can these language model embeddings also be used as document vectors for search?
+
+### Describing Documents with Language Model Embeddings
+Previously, Peter observed that identifying relevant documents is as difficult as answering questions based on internal company documents. Can a large language model pre-read the internal documents and make searching easier? 
+
+It turns out that language model embeddings are great document vectors. Most documents will fit within the token limits of recent language models, so it is possible to compute and store document vectors for every document. A first pass at indexing documents likely computes the language model embedding for every document and stores them in a vector database. This is often a very good pass, but there may still be easy improvements.
+
+The structures of the documents may suggest high-value excerpts or individual paragraphs that it might be valuable to refer to directly. For example, a document abstract might be worth indexing individually. A long document might be better indexed with a collection of paragraph vectors, each of which is the language model's embedding of the paragraph. Such embeddings might allow more specific search results referring to exactly the paragraph where a question is answered. However, embedding paragraph vectors will increase the size of the vector database specifically, and only embedding one paragraph at a time may reduce the relevant context included in the embedding. Whether this context is worthwhile will depend on the specific application and documents.
+
+### Implementing Document Search with Language Model Embeddings
+(03:20)
+
+Language model embeddings are very useful keys for document search and generally provide better search than the document vectors previously used in Week 10. In this video, we use language model embeddings to find similar recipes and to search for recipes given a description. 
+
+## 2.3 Lesson: Retrieval-augmented Generation
+A persistent problem with language model output is "hallucinations," outputs where it appears the model just made up an incorrect answer. A secondary problem is that the information of the language model is out of date; the information requested has changed since the training data was collected. Both of these problems can be reduced by providing context containing the right answer, but isn't providing the answer in the prompt missing the point of having the model answer the question? That is the case if the content providing the answer was chosen manually. Using retrieval-augmented generation (RAG), documents providing relevant context are automatically identified and retrieved using language model embeddings as described in Lesson 2.2, and that context is automatically added to the prompt.
+
+### Referencing Documents with Language Model Embeddings
+A prerequisite for searching for relevant documents with a vector database is being able to construct a query vector that is similar to the document vectors that we wish to find. Fortunately, language model embeddings tend to have similar embeddings for questions and answers. So, given a prompt that needs supporting documents for context, we can use the language model embedding of the prompt to search for related documents.
+
+### Retrieval-augmented Generation
+The idea of RAG is that a prompt can be processed to produce a query embedding, that query embedding can be used to look up related documents, and those documents can be used to generate a response (Lewis et al., 2020). The details have changed significantly since the original RAG proposal. Previously, there were separate encoders for questions and documents. Nowadays, the same language models are typically used for both embeddings, and matching documents are copied wholesale into the language model prompts. 
+
